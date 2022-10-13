@@ -1,0 +1,20 @@
+form {
+  width: 22em;
+}
+
+.form-group {
+  margin-bottom: 2em;
+  margin: auto;
+}
+
+.mdc-form-field {
+  width: 100%;
+}
+
+.mdc-form-field>.mdc-text-field {
+  width: 100%;
+}
+
+.mdc-form-field>button {
+  width: 100%;
+}

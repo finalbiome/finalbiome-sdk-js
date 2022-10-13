@@ -1,0 +1,306 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Place favicon.ico in the root directory -->
+
+  <!-- <link rel="stylesheet" href="normalize.css"> -->
+  <link rel="stylesheet" href="main.css">
+
+  <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+</head>
+
+<body class="mdc-typography">
+  <hgroup>
+    <h1 class="mdc-typography--headline1">Auth workflow tests</h1>
+  </hgroup>
+  <div id="tabs-forms" class="mdc-tab-bar" role="tablist" data-mdc-auto-init="MDCTabBar">
+    <div class="mdc-tab-scroller">
+      <div class="mdc-tab-scroller__scroll-area">
+        <div class="mdc-tab-scroller__scroll-content">
+          <button class="mdc-tab" role="tab" aria-selected="true" tabindex="0">
+            <span class="mdc-tab__content">
+              <span class="mdc-tab__icon material-icons" aria-hidden="true">person</span>
+              <span class="mdc-tab__text-label">Sing Up</span>
+            </span>
+            <span class="mdc-tab-indicator">
+              <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+            </span>
+            <span class="mdc-tab__ripple"></span>
+          </button>
+          <button class="mdc-tab" role="tab" aria-selected="true" tabindex="0">
+            <span class="mdc-tab__content">
+              <span class="mdc-tab__icon material-icons" aria-hidden="true">how_to_reg</span>
+              <span class="mdc-tab__text-label">Confirm Sign Up</span>
+            </span>
+            <span class="mdc-tab-indicator">
+              <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+            </span>
+            <span class="mdc-tab__ripple"></span>
+          </button>
+          <button class="mdc-tab" role="tab" aria-selected="true" tabindex="0">
+            <span class="mdc-tab__content">
+              <span class="mdc-tab__icon material-icons" aria-hidden="true">login</span>
+              <span class="mdc-tab__text-label">Sign In</span>
+            </span>
+            <span class="mdc-tab-indicator">
+              <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+            </span>
+            <span class="mdc-tab__ripple"></span>
+          </button>
+          <button class="mdc-tab" role="tab" aria-selected="true" tabindex="0">
+            <span class="mdc-tab__content">
+              <span class="mdc-tab__icon material-icons" aria-hidden="true">logout</span>
+              <span class="mdc-tab__text-label">Sign Out</span>
+            </span>
+            <span class="mdc-tab-indicator">
+              <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+            </span>
+            <span class="mdc-tab__ripple"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form id="form-sign-up" class="mdc-layout-grid">
+    <div class="mdc-layout-grid__inner">
+      <div class="mdc-typography--headline6 mdc-layout-grid__cell--span-12">Sign Up</div>
+      <div class="mdc-layout-grid__cell--span-12">
+        <div class="mdc-form-field ">
+          <label id="sign-up-email" class="mdc-text-field mdc-text-field--filled" data-mdc-auto-init="MDCTextField">
+            <span class="mdc-text-field__ripple"></span>
+            <span class="mdc-floating-label" id="my-label-id">email</span>
+            <input class="mdc-text-field__input" type="email" aria-labelledby="my-label-id" required>
+            <span class="mdc-line-ripple"></span>
+          </label>
+        </div>
+      </div>
+      <div class="mdc-layout-grid__cell--span-12">
+        <div class="mdc-form-field ">
+          <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
+            <span class="mdc-button__ripple"></span>
+            <span class="mdc-button__touch"></span>
+            <span class="mdc-button__label">Sign Up</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <form id="form-sign-up-confirm" class="mdc-layout-grid">
+    <div class="mdc-layout-grid__inner">
+      <div class="mdc-typography--headline6 mdc-layout-grid__cell--span-12">Confirm Sign Up</div>
+      <div class="mdc-layout-grid__cell--span-12">
+        <div class="mdc-form-field ">
+          <label id="sign-up-confirm-email" class="mdc-text-field mdc-text-field--filled"
+            data-mdc-auto-init="MDCTextField">
+            <span class="mdc-text-field__ripple"></span>
+            <span class="mdc-floating-label" id="my-confirm-label-id">email</span>
+            <input class="mdc-text-field__input" type="email" aria-labelledby="my-confirm-label-id" required>
+            <span class="mdc-line-ripple"></span>
+          </label>
+        </div>
+        <div class="mdc-form-field ">
+          <label id="sign-up-confirm-code" class="mdc-text-field mdc-text-field--filled"
+            data-mdc-auto-init="MDCTextField">
+            <span class="mdc-text-field__ripple"></span>
+            <span class="mdc-floating-label" id="my-confirm-label-code">code</span>
+            <input class="mdc-text-field__input" type="number" aria-labelledby="my-confirm-label-code" required>
+            <span class="mdc-line-ripple"></span>
+          </label>
+        </div>
+      </div>
+      <div class="mdc-layout-grid__cell--span-12">
+        <div class="mdc-form-field ">
+          <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
+            <span class="mdc-button__ripple"></span>
+            <span class="mdc-button__touch"></span>
+            <span class="mdc-button__label">Confirm</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <form id="form-sign-in" class="mdc-layout-grid">
+    <div class="mdc-layout-grid__inner">
+      <div class="mdc-typography--headline6 mdc-layout-grid__cell--span-12">Sign In</div>
+      <div class="mdc-layout-grid__cell--span-12">
+        <div class="mdc-form-field ">
+          <label id="sign-in-email" class="mdc-text-field mdc-text-field--filled" data-mdc-auto-init="MDCTextField">
+            <span class="mdc-text-field__ripple"></span>
+            <span class="mdc-floating-label" id="sign-in-label-id">email</span>
+            <input class="mdc-text-field__input" type="email" aria-labelledby="sign-in-label-id" required>
+            <span class="mdc-line-ripple"></span>
+          </label>
+        </div>
+        <div class="mdc-form-field ">
+          <label id="sign-in-password" class="mdc-text-field mdc-text-field--filled" data-mdc-auto-init="MDCTextField">
+            <span class="mdc-text-field__ripple"></span>
+            <span class="mdc-floating-label" id="sign-in-password-id">password</span>
+            <input class="mdc-text-field__input" type="password" aria-labelledby="sign-in-password-id" required>
+            <span class="mdc-line-ripple"></span>
+          </label>
+        </div>
+      </div>
+      <div class="mdc-layout-grid__cell--span-12">
+        <div class="mdc-form-field ">
+          <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
+            <span class="mdc-button__ripple"></span>
+            <span class="mdc-button__touch"></span>
+            <span class="mdc-button__label">Sign In</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <form id="form-logout" class="mdc-layout-grid">
+    <div class="mdc-layout-grid__inner">
+      <div class="mdc-typography--headline6 mdc-layout-grid__cell--span-12">Logout</div>
+      <div class="mdc-layout-grid__cell--span-12">
+        <div class="mdc-form-field ">
+          <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
+            <span class="mdc-button__ripple"></span>
+            <span class="mdc-button__touch"></span>
+            <span class="mdc-button__label">Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <aside id="status-bar" class="mdc-snackbar" data-mdc-auto-init="MDCSnackbar">
+    <div class="mdc-snackbar__surface" role="status" aria-relevant="additions">
+      <div class="mdc-snackbar__label" aria-atomic="false">
+        Can't send photo. Retry in 5 seconds.
+      </div>
+      <div class="mdc-snackbar__actions" aria-atomic="true">
+        <button type="button" class="mdc-button mdc-snackbar__action">
+          <div class="mdc-button__ripple"></div>
+          <span class="mdc-button__label">OK</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <script type="text/javascript">
+    window.mdc.autoInit();
+    const statusBar = new mdc.snackbar.MDCSnackbar(document.getElementById('status-bar'));
+    const statusMessages = []
+    statusBar.listen('MDCSnackbar:closed', (e) => {
+      if (statusMessages.length > 0) setStatus();
+    })
+
+    const tabs = new mdc.tabBar.MDCTabBar(document.getElementById('tabs-forms'));
+    tabs.listen('MDCTabBar:activated', (e) => changeTab(e.detail.index))
+
+    const formSignUp = document.getElementById('form-sign-up');
+    formSignUp.onsubmit = (e) => {
+      e.preventDefault();
+      signup()
+    }
+    const formSignUpConfirm = document.getElementById('form-sign-up-confirm');
+    formSignUpConfirm.onsubmit = (e) => {
+      e.preventDefault();
+      signupConfirm()
+    }
+    const formSignIn = document.getElementById('form-sign-in');
+    formSignIn.onsubmit = (e) => {
+      e.preventDefault();
+      signin()
+    }
+    const formLogout = document.getElementById('form-logout');
+    formLogout.onsubmit = (e) => {
+      e.preventDefault();
+      logout()
+    }
+
+    const changeTab = (index) => {
+      switch (index) {
+        case 0:
+          formHide(formSignIn)
+          formHide(formSignUpConfirm)
+          formShow(formSignUp)
+          formHide(formLogout)
+          break;
+        case 1:
+          formHide(formSignIn)
+          formShow(formSignUpConfirm)
+          formHide(formSignUp)
+          formHide(formLogout)
+          break;
+        case 2:
+          formShow(formSignIn)
+          formHide(formSignUpConfirm)
+          formHide(formSignUp)
+          formHide(formLogout)
+          break;
+        case 3:
+          formHide(formSignIn)
+          formHide(formSignUpConfirm)
+          formHide(formSignUp)
+          formShow(formLogout)
+          break;
+        default:
+          formHide(formSignIn)
+          formHide(formSignUpConfirm)
+          formHide(formSignUp)
+          formHide(formLogout)
+          break;
+      }
+    }
+
+    const setStatus = (text) => {
+      if (text) statusMessages.push(text);
+      if (statusBar.isOpen) return;
+
+      const msg = statusMessages.shift();
+      statusBar.labelText = msg
+      statusBar.open()
+    }
+
+    const signup = () => {
+      let email = getValueById("sign-up-email")
+      setStatus(`OK ${email}`)
+    }
+    const signin = () => {
+      let email = getValueById("sign-in-email")
+      let password = getValueById("sign-in-password")
+      setStatus(`OK ${email}, ${password}`)
+    }
+    const signupConfirm = () => {
+      let email = getValueById("sign-up-confirm-email")
+      let code = getValueById("sign-up-confirm-code")
+      setStatus(`Confirm: ${email}, ${code}`)
+    }
+    const logout = () => {
+      setStatus(`Logout`)
+    }
+
+    // Init visibility
+    tabs.activateTab(0)
+
+    function getValueById(id) {
+      let field = new mdc.textField.MDCTextField(document.getElementById(id));
+      return field.value
+    }
+
+    function formHide(form) {
+      form.style.display = "none"
+    }
+    function formShow(form) {
+      form.style.display = ""
+    }
+  </script>
+</body>
+
+</html>

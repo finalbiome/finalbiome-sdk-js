@@ -18,6 +18,10 @@ module.exports = {
     project: ['./tsconfig.json']
   },
   rules: {
+    'space-before-function-paren': 0,
+    '@typescript-eslint/space-before-function-paren': 0,
+    '@typescript-eslint/strict-boolean-expressions': 0,
+    '@typescript-eslint/promise-function-async': 0
   },
   ignorePatterns: [
     'temp.js', '**/vendor/*.js',
