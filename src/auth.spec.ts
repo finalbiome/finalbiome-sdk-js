@@ -44,7 +44,8 @@ describe('Auth cust', () => {
       await Auth.signIn(email, password)
       const c1 = await a.getCredentals()
       const d = await a.currentSession()
-      console.log(c, c1, d)
+      const s = await a.showSeed()
+      console.log(c, c1, d, s)
     } catch (e) {
       console.log(e)
     }

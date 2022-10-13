@@ -1,21 +1,36 @@
 module.exports = {
+  root: true,
   env: {
     browser: true,
-    es2021: true
+    es2020: true
   },
   extends: 'standard-with-typescript',
   overrides: [
     {
-      files: ['test/**'],
+      files: [
+        'test/**/*',
+        '**/*.spec.ts',
+        '**/*.test.ts'
+      ],
       plugins: ['jest'],
       extends: ['plugin:jest/recommended'],
-      rules: { 'jest/prefer-expect-assertions': 'off' }
+      rules: {
+        'jest/prefer-expect-assertions': 'off',
+        'jest/expect-expect': 'off'
+      },
+      parserOptions: {
+        project: [
+          './tsconfig.test.json'
+        ]
+      }
     }
   ],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
-    project: ['./tsconfig.json']
+    project: [
+      './tsconfig.json'
+    ]
   },
   rules: {
     'space-before-function-paren': 0,

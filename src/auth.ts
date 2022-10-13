@@ -1,14 +1,18 @@
-import {
-  CognitoUser,
+import type {
+  // CognitoUser,
   ICookieStorageData,
   ICognitoStorage,
   CognitoUserSession
 } from 'amazon-cognito-identity-js'
 
 import * as constants from './constants'
-import { Amplify, Auth as AmpAuth, Hub, API } from 'aws-amplify'
-import { ICredentials } from '@aws-amplify/core'
-import axios from 'axios'
+// import { Amplify, API } from 'aws-amplify/lib'
+import { Auth as AmpAuth } from '@aws-amplify/auth'
+// import { API } from '@aws-amplify/api'
+import { Hub } from '@aws-amplify/core'
+import type { ICredentials } from '@aws-amplify/core'
+import { RestAPI } from '@aws-amplify/api-rest'
+// import axios from 'axios'
 
 // const userPool = new CognitoUserPool(constants.CognitoPoolData)
 
@@ -135,11 +139,13 @@ export interface AuthOptions {
 
 export class AuthClass {
   private readonly auth: typeof AmpAuth
-  private user?: CognitoUser
+  private readonly api: typeof RestAPI
+  // private user?: CognitoUser
   private seed?: string
 
   constructor() {
     this.auth = AmpAuth
+    this.api = RestAPI
     const configAuth: AuthOptions = {
       identityPoolId: constants.IDENTITY_POOL_ID,
       region: constants.AWS_REGION,
@@ -178,10 +184,12 @@ export class AuthClass {
         }
       ]
     }
-    Amplify.configure({
-      Auth: configAuth,
-      API: configApi
-    })
+    // Amplify.configure({
+    //   Auth: configAuth,
+    //   API: configApi
+    // })
+    this.auth.configure(configAuth)
+    this.api.configure(configApi)
     this.listenToAutoSignInEvent()
   }
 
@@ -190,7 +198,7 @@ export class AuthClass {
   }
 
   async signUp(email: string, password: string): Promise<void> {
-    const { user } = await this.auth.signUp({
+    await this.auth.signUp({
       username: email,
       password,
       attributes: {
@@ -200,7 +208,7 @@ export class AuthClass {
         enabled: true
       }
     })
-    this.user = user
+    // this.user = user
   }
 
   private listenToAutoSignInEvent(): void {
@@ -208,10 +216,10 @@ export class AuthClass {
     Hub.listen('auth', ({ payload }) => {
       const { event } = payload
       if (event === 'autoSignIn') {
-        this.user = payload.data
+        // this.user = payload.data
         // assign user
       } else if (event === 'autoSignIn_failure') {
-        this.user = undefined
+        // this.user = undefined
       }
     })
   }
@@ -225,14 +233,14 @@ export class AuthClass {
   }
 
   async signIn(email: string, password: string): Promise<void> {
-    const user = await this.auth.signIn({ username: email, password })
-    this.user = user
+    await this.auth.signIn({ username: email, password })
+    // this.user = user
     await this.getSeed()
   }
 
   async signOut(global: boolean = false): Promise<void> {
     await this.auth.signOut({ global })
-    this.user = undefined
+    // this.user = undefined
     this.seed = undefined
   }
 
@@ -240,10 +248,11 @@ export class AuthClass {
     const apiName = constants.API_AUTH_ENDPOINT_NAME
     const path = '/auth/general/new'
     try {
-      const response = await API.get(apiName, path, {})
+      const response = await this.api.get(apiName, path, {})
       this.seed = response.data?.phrase
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
+    } catch (err: any) {
+      // if (axios.isAxiosError(err)) {
+      if (err?.isAxiosError === true) {
         throw new Error(err.response?.data?.message)
       } else {
         throw err
@@ -255,10 +264,11 @@ export class AuthClass {
     const apiName = constants.API_AUTH_ENDPOINT_NAME
     const path = '/auth/general/get'
     try {
-      const response = await API.get(apiName, path, { response: true })
+      const response = await this.api.get(apiName, path, { response: true })
       this.seed = response.data?.phrase
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
+    } catch (err: any) {
+      // if (axios.isAxiosError(err)) {
+      if (err?.isAxiosError === true) {
         if (err.response?.status === 404) {
           // seed not exists
           await this.createSeed()
