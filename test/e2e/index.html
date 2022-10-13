@@ -270,6 +270,7 @@
 
     const signup = () => {
       let email = getValueById("sign-up-email")
+      setEmail(email)
       setStatus(`OK ${email}`)
     }
     const signin = () => {
@@ -293,12 +294,21 @@
       let field = new mdc.textField.MDCTextField(document.getElementById(id));
       return field.value
     }
+    function setValueById(id, value) {
+      let field = new mdc.textField.MDCTextField(document.getElementById(id));
+      field.value = value
+    }
 
     function formHide(form) {
       form.style.display = "none"
     }
     function formShow(form) {
       form.style.display = ""
+    }
+
+    function setEmail(email) {
+      setValueById('sign-in-email', email)
+      setValueById('sign-up-confirm-email', email)
     }
   </script>
 </body>
