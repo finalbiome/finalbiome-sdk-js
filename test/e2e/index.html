@@ -15,7 +15,7 @@
   <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
-  
+
   <script src="./vendor/dist/esbuild/browser.js"></script>
 </head>
 
@@ -76,7 +76,7 @@
     <div class="mdc-layout-grid__inner">
       <div class="mdc-typography--headline6 mdc-layout-grid__cell--span-12">Sign Up</div>
       <div class="mdc-layout-grid__cell--span-12">
-        <div class="mdc-form-field ">
+        <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
           <label id="sign-up-email" class="mdc-text-field mdc-text-field--filled" data-mdc-auto-init="MDCTextField">
             <span class="mdc-text-field__ripple"></span>
             <span class="mdc-floating-label" id="my-label-id">email</span>
@@ -86,7 +86,7 @@
         </div>
       </div>
       <div class="mdc-layout-grid__cell--span-12">
-        <div class="mdc-form-field ">
+        <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
           <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
             <span class="mdc-button__ripple"></span>
             <span class="mdc-button__touch"></span>
@@ -101,7 +101,7 @@
     <div class="mdc-layout-grid__inner">
       <div class="mdc-typography--headline6 mdc-layout-grid__cell--span-12">Confirm Sign Up</div>
       <div class="mdc-layout-grid__cell--span-12">
-        <div class="mdc-form-field ">
+        <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
           <label id="sign-up-confirm-email" class="mdc-text-field mdc-text-field--filled"
             data-mdc-auto-init="MDCTextField">
             <span class="mdc-text-field__ripple"></span>
@@ -110,7 +110,9 @@
             <span class="mdc-line-ripple"></span>
           </label>
         </div>
-        <div class="mdc-form-field ">
+      </div>
+      <div class="mdc-layout-grid__cell--span-12">
+        <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
           <label id="sign-up-confirm-code" class="mdc-text-field mdc-text-field--filled"
             data-mdc-auto-init="MDCTextField">
             <span class="mdc-text-field__ripple"></span>
@@ -121,7 +123,7 @@
         </div>
       </div>
       <div class="mdc-layout-grid__cell--span-12">
-        <div class="mdc-form-field ">
+        <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
           <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
             <span class="mdc-button__ripple"></span>
             <span class="mdc-button__touch"></span>
@@ -136,7 +138,7 @@
     <div class="mdc-layout-grid__inner">
       <div class="mdc-typography--headline6 mdc-layout-grid__cell--span-12">Sign In</div>
       <div class="mdc-layout-grid__cell--span-12">
-        <div class="mdc-form-field ">
+        <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
           <label id="sign-in-email" class="mdc-text-field mdc-text-field--filled" data-mdc-auto-init="MDCTextField">
             <span class="mdc-text-field__ripple"></span>
             <span class="mdc-floating-label" id="sign-in-label-id">email</span>
@@ -144,7 +146,9 @@
             <span class="mdc-line-ripple"></span>
           </label>
         </div>
-        <div class="mdc-form-field ">
+      </div>
+      <div class="mdc-layout-grid__cell--span-12">
+        <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
           <label id="sign-in-password" class="mdc-text-field mdc-text-field--filled" data-mdc-auto-init="MDCTextField">
             <span class="mdc-text-field__ripple"></span>
             <span class="mdc-floating-label" id="sign-in-password-id">password</span>
@@ -154,7 +158,22 @@
         </div>
       </div>
       <div class="mdc-layout-grid__cell--span-12">
-        <div class="mdc-form-field ">
+        <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
+          <div class="mdc-checkbox mdc-checkbox--touch" data-mdc-auto-init="MDCCheckbox">
+            <input type="checkbox" class="mdc-checkbox__native-control" id="checkbox-1" />
+            <div class="mdc-checkbox__background">
+              <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+                <path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59" />
+              </svg>
+              <div class="mdc-checkbox__mixedmark"></div>
+            </div>
+            <div class="mdc-checkbox__ripple"></div>
+          </div>
+          <label for="checkbox-1">Remember Me</label>
+        </div>
+      </div>
+      <div class="mdc-layout-grid__cell--span-12">
+        <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
           <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
             <span class="mdc-button__ripple"></span>
             <span class="mdc-button__touch"></span>
@@ -169,7 +188,7 @@
     <div class="mdc-layout-grid__inner">
       <div class="mdc-typography--headline6 mdc-layout-grid__cell--span-12">Logout</div>
       <div class="mdc-layout-grid__cell--span-12">
-        <div class="mdc-form-field ">
+        <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
           <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
             <span class="mdc-button__ripple"></span>
             <span class="mdc-button__touch"></span>
