@@ -12,6 +12,7 @@ import { Auth as AmpAuth } from '@aws-amplify/auth'
 import { Hub } from '@aws-amplify/core'
 import type { ICredentials } from '@aws-amplify/core'
 import { RestAPI } from '@aws-amplify/api-rest'
+import EventEmitter from 'events'
 // import axios from 'axios'
 
 // const userPool = new CognitoUserPool(constants.CognitoPoolData)
@@ -137,13 +138,14 @@ export interface AuthOptions {
   signUpVerificationMethod?: 'code' | 'link'
 }
 
-export class AuthClass {
+export class AuthClass extends EventEmitter {
   private readonly auth: typeof AmpAuth
   private readonly api: typeof RestAPI
   // private user?: CognitoUser
   private seed?: string
 
   constructor() {
+    super()
     this.auth = AmpAuth
     this.api = RestAPI
     const configAuth: AuthOptions = {
@@ -158,7 +160,7 @@ export class AuthClass {
       // Note: if the secure flag is set to true, then the cookie transmission requires a secure protocol
       // cookieStorage: {
       //   // REQUIRED - Cookie domain (only required if cookieStorage is provided)
-      // domain: 'localhost',
+      //   domain: 'localhost',
       //   // OPTIONAL - Cookie path
       //   path: '/',
       //   // OPTIONAL - Cookie expiration in days
@@ -167,7 +169,7 @@ export class AuthClass {
       //   sameSite: 'lax',
       //   // OPTIONAL - Cookie secure flag
       //   // Either true or false, indicating if the cookie transmission requires a secure protocol (https).
-      // secure: false
+      //   secure: false
       // },
       // OPTIONAL - Manually set the authentication flow type. Default is 'USER_SRP_AUTH'
       authenticationFlowType: 'USER_PASSWORD_AUTH'
@@ -190,7 +192,7 @@ export class AuthClass {
     // })
     this.auth.configure(configAuth)
     this.api.configure(configApi)
-    this.listenToAutoSignInEvent()
+    this.listenAuthEvent()
   }
 
   configure(): void {
@@ -211,16 +213,18 @@ export class AuthClass {
     // this.user = user
   }
 
-  private listenToAutoSignInEvent(): void {
+  private listenAuthEvent(): void {
     // https://docs.amplify.aws/lib/auth/emailpassword/q/platform/js/#auto-sign-in-after-sign-up
     Hub.listen('auth', ({ payload }) => {
-      const { event } = payload
+      const { event, data, message } = payload
       if (event === 'autoSignIn') {
         // this.user = payload.data
         // assign user
       } else if (event === 'autoSignIn_failure') {
         // this.user = undefined
       }
+
+      this.emit(event as constants.AuthEvents, data, message)
     })
   }
 
@@ -291,6 +295,15 @@ export class AuthClass {
 
   async currentSession(): Promise<CognitoUserSession> {
     return await this.auth.currentSession()
+  }
+
+  async isLoggedIn(): Promise<boolean> {
+    try {
+      const res = await this.auth.currentAuthenticatedUser()
+      return !!res
+    } catch (error) {
+      return false
+    }
   }
 }
 

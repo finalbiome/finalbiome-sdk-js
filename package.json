@@ -39,6 +39,7 @@
   "dependencies": {
     "@aws-amplify/api-rest": "^2.0.55",
     "@aws-amplify/auth": "^4.6.8",
-    "@aws-amplify/core": "^4.7.6"
+    "@aws-amplify/core": "^4.7.6",
+    "events": "^3.3.0"
   }
 }
