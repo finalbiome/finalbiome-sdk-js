@@ -27,7 +27,7 @@
     <div class="mdc-tab-scroller">
       <div class="mdc-tab-scroller__scroll-area">
         <div class="mdc-tab-scroller__scroll-content">
-          <button class="mdc-tab" role="tab" aria-selected="true" tabindex="0">
+          <button id="mdc-tab-0" class="mdc-tab" role="tab" aria-selected="true" tabindex="0">
             <span class="mdc-tab__content">
               <span class="mdc-tab__icon material-icons" aria-hidden="true">person</span>
               <span class="mdc-tab__text-label">Sing Up</span>
@@ -37,7 +37,7 @@
             </span>
             <span class="mdc-tab__ripple"></span>
           </button>
-          <button class="mdc-tab" role="tab" aria-selected="true" tabindex="0">
+          <button id="mdc-tab-1" class="mdc-tab" role="tab" aria-selected="true" tabindex="1">
             <span class="mdc-tab__content">
               <span class="mdc-tab__icon material-icons" aria-hidden="true">how_to_reg</span>
               <span class="mdc-tab__text-label">Confirm Sign Up</span>
@@ -47,7 +47,7 @@
             </span>
             <span class="mdc-tab__ripple"></span>
           </button>
-          <button class="mdc-tab" role="tab" aria-selected="true" tabindex="0">
+          <button id="mdc-tab-2" class="mdc-tab" role="tab" aria-selected="true" tabindex="2">
             <span class="mdc-tab__content">
               <span class="mdc-tab__icon material-icons" aria-hidden="true">login</span>
               <span class="mdc-tab__text-label">Sign In</span>
@@ -57,7 +57,7 @@
             </span>
             <span class="mdc-tab__ripple"></span>
           </button>
-          <button class="mdc-tab" role="tab" aria-selected="true" tabindex="0">
+          <button id="mdc-tab-3" class="mdc-tab" role="tab" aria-selected="true" tabindex="3">
             <span class="mdc-tab__content">
               <span class="mdc-tab__icon material-icons" aria-hidden="true">logout</span>
               <span class="mdc-tab__text-label">Sign Out</span>
@@ -87,6 +87,16 @@
       </div>
       <div class="mdc-layout-grid__cell--span-12">
         <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
+          <label id="sign-up-password" class="mdc-text-field mdc-text-field--filled" data-mdc-auto-init="MDCTextField">
+            <span class="mdc-text-field__ripple"></span>
+            <span class="mdc-floating-label" id="sign-up-password-id">password</span>
+            <input class="mdc-text-field__input" type="password" aria-labelledby="sign-up-password-id" required>
+            <span class="mdc-line-ripple"></span>
+          </label>
+          </div>
+          </div>
+          <div class="mdc-layout-grid__cell--span-12">
+            <div class="mdc-form-field" data-mdc-auto-init="MDCFormField">
           <button class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple">
             <span class="mdc-button__ripple"></span>
             <span class="mdc-button__touch"></span>
@@ -215,6 +225,13 @@
 
   <script type="text/javascript">
     window.mdc.autoInit();
+      const COOKIE_NAME = 'formEmail';
+      getEmailAndPropagate();
+
+      window.Auth.on('signIn', (data) => loggedIn(true))
+      window.Auth.on('autoSignIn', (data) => loggedIn(true))
+      window.Auth.on('signOut', (data) => loggedIn(false))
+
     const statusBar = new mdc.snackbar.MDCSnackbar(document.getElementById('status-bar'));
     const statusMessages = []
     statusBar.listen('MDCSnackbar:closed', (e) => {
@@ -291,21 +308,38 @@
 
     const signup = () => {
       let email = getValueById("sign-up-email")
+      let password = getValueById("sign-up-password")
       setEmail(email)
-      setStatus(`OK ${email}`)
+      document.cookie = `${COOKIE_NAME}=${email}`
+      // setStatus(`OK ${email}`)
+
+      window.Auth.signUp(email, password)
+        .then(() => setStatus(`OK: Signed Up`))
+        .catch((e) => setStatus(`ERROR: Signed Up: ${JSON.stringify(e)}`))
     }
     const signin = () => {
       let email = getValueById("sign-in-email")
       let password = getValueById("sign-in-password")
-      setStatus(`OK ${email}, ${password}`)
+      // setStatus(`OK ${email}, ${password}`)
+
+      window.Auth.signIn(email, password)
+        .then(() => setStatus(`OK: Signed In`))
+        .catch((e) => setStatus(`ERROR: Signed In: ${JSON.stringify(e)}`))
     }
     const signupConfirm = () => {
       let email = getValueById("sign-up-confirm-email")
       let code = getValueById("sign-up-confirm-code")
-      setStatus(`Confirm: ${email}, ${code}`)
+      // setStatus(`Confirm: ${email}, ${code}`)
+
+      window.Auth.confirmSignUp(email, code)
+        .then(() => setStatus(`OK: Sign Up Confirmed`))
+        .catch((e) => setStatus(`ERROR: Sign Up Confirmation: ${JSON.stringify(e)}`))
     }
     const logout = () => {
-      setStatus(`Logout`)
+      // setStatus(`Logout`)
+      window.Auth.signOut()
+        .then(() => setStatus(`OK: Logged Out`))
+        .catch((e) => setStatus(`ERROR: Logged Out: ${JSON.stringify(e)}`))
     }
 
     // Init visibility
@@ -331,6 +365,53 @@
       setValueById('sign-in-email', email)
       setValueById('sign-up-confirm-email', email)
     }
+
+  function getEmailAndPropagate() {
+    let email = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith(`${COOKIE_NAME}=`))
+      ?.split('=')[1];
+    if (email) {
+      setValueById('sign-up-email', email)
+      setValueById('sign-up-confirm-email', email)
+      setValueById('sign-in-email', email)
+    }
+  }
+
+  // update interface; boolean
+  function loggedIn(value) {
+    let tabs = [
+      // sign up
+      document.getElementById("mdc-tab-0"),
+      // sign confirm
+      document.getElementById("mdc-tab-1"),
+      // sign sign in
+      document.getElementById("mdc-tab-2"),
+      // sign logout
+      document.getElementById("mdc-tab-3"),
+    ]
+    let field = new mdc.tabBar.MDCTabBar(document.getElementById("tabs-forms"));
+    if (value) {
+      // if logged in
+      tabs[0].style.display = "none"
+      tabs[1].style.display = "none"
+      tabs[2].style.display = "none"
+      tabs[3].style.display = ""
+      field.tabList[3].handleClick()
+    } else {
+      // if logged out
+      tabs[0].style.display = ""
+      tabs[1].style.display = ""
+      tabs[2].style.display = ""
+      tabs[3].style.display = "none"
+      field.tabList[0].handleClick()
+    }
+  }
+
+
+  //
+  window.Auth.isLoggedIn().then((l) => loggedIn(l))
+
   </script>
 </body>
 
