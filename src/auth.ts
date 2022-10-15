@@ -13,130 +13,8 @@ import { Hub } from '@aws-amplify/core'
 import type { ICredentials } from '@aws-amplify/core'
 import { RestAPI } from '@aws-amplify/api-rest'
 import EventEmitter from 'events'
+import type { AuthOptions } from './types'
 // import axios from 'axios'
-
-// const userPool = new CognitoUserPool(constants.CognitoPoolData)
-
-// export function signUp(email: string, password: string): Promise<CognitoUser | undefined> {
-//   const dataEmail: ICognitoUserAttributeData = {
-//     Name: 'email',
-//     Value: email
-//   }
-//   const attributeEmail = new CognitoUserAttribute(dataEmail)
-//   return new Promise((resolve, reject) => {
-//     userPool.signUp(email, password, [attributeEmail], [], function (err, result) {
-//       if (err) {
-//         // const message = err?.message || JSON.stringify(err)
-//         // console.error(message)
-//         reject(err)
-//       }
-//       const cognitoUser = result?.user
-//       // console.log('user name is ', cognitoUser?.getUsername())
-//       resolve(cognitoUser)
-//     })
-//   })
-// }
-
-// export function confirmRegistration(email: string, code: string): Promise<void> {
-//   const userData = {
-//     Username: email,
-//     Pool: userPool
-//   }
-
-//   const cognitoUser = new CognitoUser(userData)
-//   return new Promise((resolve, reject) => {
-//     cognitoUser.confirmRegistration(code, true, function (err, result) {
-//       if (err) {
-//         reject(err)
-//       }
-//       resolve()
-//     })
-//   })
-// }
-
-// export function resendConfirmationCode(email: string): Promise<void> {
-//   const userData = {
-//     Username: email,
-//     Pool: userPool
-//   }
-
-//   const cognitoUser = new CognitoUser(userData)
-//   return new Promise((resolve, reject) => {
-//     cognitoUser.resendConfirmationCode(function (err, result) {
-//       if (err) {
-//         reject(err)
-//       }
-//       resolve()
-//     })
-//   })
-// }
-
-// export function authenticate(email: string, password: string): Promise<CognitoUserSession> {
-//   const authenticationData = {
-//     Username: email,
-//     Password: password
-//   }
-//   const authenticationDetails = new AuthenticationDetails(
-//     authenticationData
-//   )
-
-//   const userData = {
-//     Username: email,
-//     Pool: userPool
-//   }
-
-//   const cognitoUser = new CognitoUser(userData)
-//   return new Promise((resolve, reject) => {
-//     cognitoUser.authenticateUser(authenticationDetails, {
-//       onSuccess: function (result) {
-//         // User authentication was successful
-//         resolve(result)
-//       },
-//       onFailure: function (err) {
-//         // User authentication was not successful
-//         reject(err)
-//       }
-//     })
-//   })
-// }
-
-export type OAuthOpts = AwsCognitoOAuthOpts | Auth0OAuthOpts
-export interface AwsCognitoOAuthOpts {
-  domain: string
-  scope: string[]
-  redirectSignIn: string
-  redirectSignOut: string
-  responseType: string
-  options?: object
-  urlOpener?: (url: string, redirectUrl: string) => Promise<any>
-}
-export interface Auth0OAuthOpts {
-  domain: string
-  clientID: string
-  scope: string
-  redirectUri: string
-  audience: string
-  responseType: string
-  returnTo: string
-  urlOpener?: (url: string, redirectUrl: string) => Promise<any>
-}
-
-export interface AuthOptions {
-  userPoolId?: string
-  userPoolWebClientId?: string
-  identityPoolId?: string
-  region?: string
-  mandatorySignIn?: boolean
-  cookieStorage?: ICookieStorageData
-  oauth?: OAuthOpts
-  refreshHandlers?: object
-  storage?: ICognitoStorage
-  authenticationFlowType?: string
-  identityPoolRegion?: string
-  clientMetadata?: any
-  endpoint?: string
-  signUpVerificationMethod?: 'code' | 'link'
-}
 
 export class AuthClass extends EventEmitter {
   private readonly auth: typeof AmpAuth
@@ -172,7 +50,7 @@ export class AuthClass extends EventEmitter {
       //   secure: false
       // },
       // OPTIONAL - Manually set the authentication flow type. Default is 'USER_SRP_AUTH'
-      authenticationFlowType: 'USER_PASSWORD_AUTH'
+      // authenticationFlowType: 'USER_PASSWORD_AUTH'
     }
     const configApi = {
       endpoints: [
@@ -186,10 +64,7 @@ export class AuthClass extends EventEmitter {
         }
       ]
     }
-    // Amplify.configure({
-    //   Auth: configAuth,
-    //   API: configApi
-    // })
+
     this.auth.configure(configAuth)
     this.api.configure(configApi)
     this.listenAuthEvent()
@@ -239,7 +114,7 @@ export class AuthClass extends EventEmitter {
   async signIn(email: string, password: string): Promise<void> {
     await this.auth.signIn({ username: email, password })
     // this.user = user
-    await this.getSeed()
+    // await this.getSeed()
   }
 
   async signOut(global: boolean = false): Promise<void> {
@@ -248,45 +123,56 @@ export class AuthClass extends EventEmitter {
     this.seed = undefined
   }
 
-  private async createSeed(): Promise<void> {
+  private async createSeed(): Promise<string | undefined> {
     const apiName = constants.API_AUTH_ENDPOINT_NAME
     const path = '/auth/general/new'
     try {
       const response = await this.api.get(apiName, path, {})
       this.seed = response.data?.phrase
+      return this.seed
     } catch (err: any) {
       // if (axios.isAxiosError(err)) {
       if (err?.isAxiosError === true) {
-        throw new Error(err.response?.data?.message)
+        // throw new Error(err.response?.data?.message)
+        console.error(err.response?.data?.message)
+        return undefined
       } else {
-        throw err
+        // throw err
+        console.error(err)
+        return undefined
       }
     }
   }
 
-  private async getSeed(): Promise<void> {
+  private async getSeed(): Promise<string | undefined> {
     const apiName = constants.API_AUTH_ENDPOINT_NAME
     const path = '/auth/general/get'
     try {
       const response = await this.api.get(apiName, path, { response: true })
       this.seed = response.data?.phrase
+      return this.seed
     } catch (err: any) {
       // if (axios.isAxiosError(err)) {
       if (err?.isAxiosError === true) {
         if (err.response?.status === 404) {
           // seed not exists
-          await this.createSeed()
+          return this.createSeed()
         } else {
-          throw new Error(err.response?.data?.message)
+          // throw new Error(err.response?.data?.message)
+          console.error(err.response?.data?.message)
+          return undefined
         }
       } else {
-        throw err
+        // throw err
+        console.error(err)
+        return undefined
       }
     }
   }
 
-  showSeed(): string | undefined {
-    return this.seed
+  async showSeed(): Promise<string | undefined> {
+    if (this.seed) return this.seed
+    return await this.getSeed()
   }
 
   async getCredentals(): Promise<ICredentials> {

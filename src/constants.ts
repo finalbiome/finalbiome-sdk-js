@@ -9,6 +9,9 @@ export const AWS_REGION = 'eu-west-1'
 export const API_AUTH_ENDPOINT_NAME = 'ApiGatewayAuth'
 export const API_AUTH_ENDPOINT = 'https://vawrz6lyya.execute-api.eu-west-1.amazonaws.com/prod'
 
+export const OAUTH_GOOGLE_CLIENT_ID = '137309833944-r5ipo98ndju3sf9qe0fko4mtnhdk75n2.apps.googleusercontent.com'
+
+
 export const enum AuthEvents {
   SignIn = 'signIn',
   SignUp = 'signUp',

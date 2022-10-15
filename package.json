@@ -5,8 +5,8 @@
   "repository": "https://github.com/finalbiome/finalbiome-sdk-js.git",
   "author": "FinalBiome Devs <https://github.com/finalbiome>",
   "license": "Apache-2.0",
-  "main": "./dist/tsc/main.js",
-  "types": "./dist/tsc/main.d.ts",
+  "main": "./dist/tsc/index.js",
+  "types": "./dist/tsc/index.d.ts",
   "browser": "./dist/esbuild/browser.js",
   "scripts": {
     "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
@@ -14,10 +14,10 @@
     "clean": "rm -rf dist build package",
     "ts-node": "ts-node",
     "docs": "typedoc --entryPoints src/main.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc",
     "build-all": "yarn clean && yarn build && yarn esbuild-browser",
-    "esbuild-browser": "esbuild src/browser.ts --bundle --minify --sourcemap=external --tree-shaking=true --define:global=window --outfile=dist/esbuild/browser.js",
-    "esbuild-browser:dev": "esbuild src/browser.ts --bundle --define:global=window --outfile=dist/esbuild/browser.js",
+    "esbuild-browser": "esbuild src/browser.ts --bundle --minify --tree-shaking=true --define:global=window --outfile=dist/esbuild/browser.js",
+    "esbuild-browser:dev": "esbuild src/browser.ts --bundle --bundle --minify --sourcemap=linked --tree-shaking=true --define:global=window --outfile=dist/esbuild/browser.js",
     "esbuild-browser:watch": "esbuild src/browser.ts --bundle --watch --define:global=window --outfile=dist/esbuild/browser.js"
   },
   "devDependencies": {
@@ -30,6 +30,7 @@
     "eslint-plugin-jest": "^27.1.1",
     "eslint-plugin-n": "^15.0.0",
     "eslint-plugin-promise": "^6.0.0",
+    "google-closure-compiler": "^20221004.0.0",
     "jest": "^29.1.2",
     "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",

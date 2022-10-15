@@ -209,6 +209,20 @@
     </div>
   </form>
 
+  <div class="mdc-card mdc-card--outlined">
+    <div class="mdc-typography--headline6">User Info</div>
+    <div class="mdc-card__content">
+      <div class="info-entity">
+        <span class="info-title mdc-typography--subtitle2 ">Login</span>
+        <span id="info-login" class="info-content mdc-typography--body2"></span>
+      </div>
+      <div class="info-entity">
+        <span class="info-title mdc-typography--subtitle2 ">Seed</span>
+        <span id="info-seed" class="info-content mdc-typography--body2"></span>
+      </div>
+    </div>
+  </div>
+
   <aside id="status-bar" class="mdc-snackbar" data-mdc-auto-init="MDCSnackbar">
     <div class="mdc-snackbar__surface" role="status" aria-relevant="additions">
       <div class="mdc-snackbar__label" aria-atomic="false">
@@ -231,6 +245,21 @@
       window.Auth.on('signIn', (data) => loggedIn(true))
       window.Auth.on('autoSignIn', (data) => loggedIn(true))
       window.Auth.on('signOut', (data) => loggedIn(false))
+
+      let events = [
+        'signIn',
+        'signUp',
+        'signOut',
+        'signIn_failure',
+        'tokenRefresh',
+        'tokenRefresh_failure',
+        'autoSignIn',
+        'autoSignIn_failure',
+        'configured',
+      ]
+      events.forEach(event => {
+        window.Auth.on(event, (data) => setStatus(event))
+      });
 
     const statusBar = new mdc.snackbar.MDCSnackbar(document.getElementById('status-bar'));
     const statusMessages = []
@@ -406,8 +435,20 @@
       tabs[3].style.display = "none"
       field.tabList[0].handleClick()
     }
+    setUserInfo()
   }
 
+  function setUserInfo() {
+    Auth.auth.currentAuthenticatedUser().then(u => {
+      const email = u.attributes['email']
+      document.getElementById('info-login').innerText = email || u.username
+      Auth.showSeed().then(s => document.getElementById('info-seed').innerText = s)
+    })
+    .catch(e => {
+      document.getElementById('info-login').innerText = ''
+      document.getElementById('info-seed').innerText = ''
+    })
+  }
 
   //
   window.Auth.isLoggedIn().then((l) => loggedIn(l))

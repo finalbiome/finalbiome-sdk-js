@@ -18,3 +18,15 @@ form {
 .mdc-form-field>button {
   width: 100%;
 }
+
+.mdc-card {
+  padding: 1em;
+}
+
+.mdc-card__content {
+  padding-top: 1em;
+}
+
+.mdc-form-field>label {
+  padding-left: 1em !important;
+}
