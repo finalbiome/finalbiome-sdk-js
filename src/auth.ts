@@ -1,13 +1,11 @@
 import type {
   // CognitoUser,
-  ICookieStorageData,
-  ICognitoStorage,
   CognitoUserSession
 } from 'amazon-cognito-identity-js'
 
 import * as constants from './constants'
 // import { Amplify, API } from 'aws-amplify/lib'
-import { Auth as AmpAuth } from '@aws-amplify/auth'
+import { Auth as AmpAuth, CognitoHostedUIIdentityProvider } from '@aws-amplify/auth'
 // import { API } from '@aws-amplify/api'
 import { Hub } from '@aws-amplify/core'
 import type { ICredentials } from '@aws-amplify/core'
@@ -51,6 +49,22 @@ export class AuthClass extends EventEmitter {
       // },
       // OPTIONAL - Manually set the authentication flow type. Default is 'USER_SRP_AUTH'
       // authenticationFlowType: 'USER_PASSWORD_AUTH'
+      oauth: {
+        // redirectSignIn: 'https://auth.finalbiome.net/signin',
+        // redirectSignOut: 'https://auth.finalbiome.net/signout',
+        redirectSignIn: 'http://localhost:8000',
+        redirectSignOut: 'http://localhost:8000',
+        clientID: constants.OAUTH_GOOGLE_CLIENT_ID,
+        domain: 'finalbiome.auth.eu-west-1.amazoncognito.com',
+        responseType: 'code',
+        scope: [
+          'phone',
+          'email',
+          'profile',
+          'openid',
+          'aws.cognito.signin.user.admin'
+        ]
+      }
     }
     const configApi = {
       endpoints: [
@@ -128,7 +142,7 @@ export class AuthClass extends EventEmitter {
     const path = '/auth/general/new'
     try {
       const response = await this.api.get(apiName, path, {})
-      this.seed = response.data?.phrase
+      this.seed = response.phrase
       return this.seed
     } catch (err: any) {
       // if (axios.isAxiosError(err)) {
@@ -148,15 +162,15 @@ export class AuthClass extends EventEmitter {
     const apiName = constants.API_AUTH_ENDPOINT_NAME
     const path = '/auth/general/get'
     try {
-      const response = await this.api.get(apiName, path, { response: true })
-      this.seed = response.data?.phrase
+      const response = await this.api.get(apiName, path, {})
+      this.seed = response.phrase
       return this.seed
     } catch (err: any) {
       // if (axios.isAxiosError(err)) {
       if (err?.isAxiosError === true) {
         if (err.response?.status === 404) {
           // seed not exists
-          return this.createSeed()
+          return await this.createSeed()
         } else {
           // throw new Error(err.response?.data?.message)
           console.error(err.response?.data?.message)
@@ -190,6 +204,10 @@ export class AuthClass extends EventEmitter {
     } catch (error) {
       return false
     }
+  }
+
+  async loginGoogle(): Promise<void> {
+    await this.auth.federatedSignIn({ provider: CognitoHostedUIIdentityProvider.Google })
   }
 }
 
