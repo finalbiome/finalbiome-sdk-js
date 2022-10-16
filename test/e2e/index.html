@@ -293,6 +293,8 @@
         'autoSignIn',
         'autoSignIn_failure',
         'configured',
+        'signUp_failure',
+        'signOut_failure'
       ]
       events.forEach(event => {
         window.Auth.on(event, (data) => setStatus(event))
@@ -380,7 +382,7 @@
       // setStatus(`OK ${email}`)
 
       window.Auth.signUp(email, password)
-        .then(() => setStatus(`OK: Signed Up`))
+        // .then(() => setStatus(`OK: Signed Up`))
         .catch((e) => setStatus(`ERROR: Signed Up: ${JSON.stringify(e)}`))
     }
     const signin = () => {
@@ -389,7 +391,7 @@
       // setStatus(`OK ${email}, ${password}`)
 
       window.Auth.signIn(email, password)
-        .then(() => setStatus(`OK: Signed In`))
+        // .then(() => setStatus(`OK: Signed In`))
         .catch((e) => setStatus(`ERROR: Signed In: ${JSON.stringify(e)}`))
     }
     const signupConfirm = () => {
@@ -398,13 +400,13 @@
       // setStatus(`Confirm: ${email}, ${code}`)
 
       window.Auth.confirmSignUp(email, code)
-        .then(() => setStatus(`OK: Sign Up Confirmed`))
+        // .then(() => setStatus(`OK: Sign Up Confirmed`))
         .catch((e) => setStatus(`ERROR: Sign Up Confirmation: ${JSON.stringify(e)}`))
     }
     const logout = () => {
       // setStatus(`Logout`)
       window.Auth.signOut()
-        .then(() => setStatus(`OK: Logged Out`))
+        // .then(() => setStatus(`OK: Logged Out`))
         .catch((e) => setStatus(`ERROR: Logged Out: ${JSON.stringify(e)}`))
     }
 
@@ -476,22 +478,20 @@
   }
 
   function setUserInfo() {
-    Auth.auth.currentAuthenticatedUser().then(u => {
-      const email = u.attributes['email']
-      document.getElementById('info-login').innerText = email || u.username
+    if (Auth.user) {
+      const displayName = Auth.user.displayName
+      const email = Auth.user.email
+      document.getElementById('info-login').innerText = displayName || email
       Auth.showSeed().then(s => document.getElementById('info-seed').innerText = s)
-    })
-    .catch(e => {
+    } else {
       document.getElementById('info-login').innerText = ''
       document.getElementById('info-seed').innerText = ''
-    })
+    }
   }
 
   function googleLogin() {
     Auth.loginGoogle()
   }
-  //
-  window.Auth.isLoggedIn().then((l) => loggedIn(l))
 
   </script>
 </body>

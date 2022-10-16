@@ -1,187 +1,127 @@
-import type {
-  // CognitoUser,
-  CognitoUserSession
-} from 'amazon-cognito-identity-js'
+import { initializeApp, type FirebaseApp } from 'firebase/app'
+import {
+  getAuth, type Auth as FirebaseAuth,
+  createUserWithEmailAndPassword, User,
+  type AuthError, signInWithEmailAndPassword,
+  onAuthStateChanged,
+  sendEmailVerification,
+  applyActionCode,
+  signOut as fbFignOut
+} from 'firebase/auth'
 
-import * as constants from './constants'
-// import { Amplify, API } from 'aws-amplify/lib'
-import { Auth as AmpAuth, CognitoHostedUIIdentityProvider } from '@aws-amplify/auth'
-// import { API } from '@aws-amplify/api'
-import { Hub } from '@aws-amplify/core'
-import type { ICredentials } from '@aws-amplify/core'
-import { RestAPI } from '@aws-amplify/api-rest'
+import { API_AUTH_ENDPOINT, AuthEvents } from './constants'
+
 import EventEmitter from 'events'
-import type { AuthOptions } from './types'
-// import axios from 'axios'
+import { FIREBASE_CONFIG } from './configs'
+import { ResponseError } from './errors'
 
 export class AuthClass extends EventEmitter {
-  private readonly auth: typeof AmpAuth
-  private readonly api: typeof RestAPI
-  // private user?: CognitoUser
+  private readonly app: FirebaseApp
+  private readonly auth: FirebaseAuth
+  private user?: User
   private seed?: string
 
   constructor() {
     super()
-    this.auth = AmpAuth
-    this.api = RestAPI
-    const configAuth: AuthOptions = {
-      identityPoolId: constants.IDENTITY_POOL_ID,
-      region: constants.AWS_REGION,
-      userPoolId: constants.COGNITO_USER_POOL_ID,
-      userPoolWebClientId: constants.COGNITO_CLIENT_ID,
-      // OPTIONAL - This is used when autoSignIn is enabled for Auth.signUp
-      // 'code' is used for Auth.confirmSignUp, 'link' is used for email link verification
-      signUpVerificationMethod: 'code', // 'code' | 'link'
-      // OPTIONAL - Configuration for cookie storage
-      // Note: if the secure flag is set to true, then the cookie transmission requires a secure protocol
-      // cookieStorage: {
-      //   // REQUIRED - Cookie domain (only required if cookieStorage is provided)
-      //   domain: 'localhost',
-      //   // OPTIONAL - Cookie path
-      //   path: '/',
-      //   // OPTIONAL - Cookie expiration in days
-      //   expires: 365,
-      //   // OPTIONAL - See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
-      //   sameSite: 'lax',
-      //   // OPTIONAL - Cookie secure flag
-      //   // Either true or false, indicating if the cookie transmission requires a secure protocol (https).
-      //   secure: false
-      // },
-      // OPTIONAL - Manually set the authentication flow type. Default is 'USER_SRP_AUTH'
-      // authenticationFlowType: 'USER_PASSWORD_AUTH'
-      oauth: {
-        // redirectSignIn: 'https://auth.finalbiome.net/signin',
-        // redirectSignOut: 'https://auth.finalbiome.net/signout',
-        redirectSignIn: 'http://localhost:8000',
-        redirectSignOut: 'http://localhost:8000',
-        clientID: constants.OAUTH_GOOGLE_CLIENT_ID,
-        domain: 'finalbiome.auth.eu-west-1.amazoncognito.com',
-        responseType: 'code',
-        scope: [
-          'phone',
-          'email',
-          'profile',
-          'openid',
-          'aws.cognito.signin.user.admin'
-        ]
-      }
-    }
-    const configApi = {
-      endpoints: [
-        {
-          name: constants.API_AUTH_ENDPOINT_NAME,
-          endpoint: constants.API_AUTH_ENDPOINT,
-          custom_header: async () => {
-            // return { Authorization: `Bearer ${(await Auth.currentSession()).getAccessToken().getJwtToken()}` }
-            return { Authorization: `Bearer ${(await this.auth.currentSession()).getIdToken().getJwtToken()}` }
-          }
-        }
-      ]
-    }
-
-    this.auth.configure(configAuth)
-    this.api.configure(configApi)
+    this.app = initializeApp(FIREBASE_CONFIG)
+    this.auth = getAuth(this.app)
     this.listenAuthEvent()
   }
 
   configure(): void {
-    // Amplify.configure(config)
+    //
   }
 
   async signUp(email: string, password: string): Promise<void> {
-    await this.auth.signUp({
-      username: email,
-      password,
-      attributes: {
-        email
-      },
-      autoSignIn: { // enables auto sign in after user is confirmed
-        enabled: true
-      }
-    })
-    // this.user = user
+    try {
+      const userCredential = await createUserWithEmailAndPassword(this.auth, email, password)
+      this.user = userCredential.user
+    } catch (err: any) {
+      const error: AuthError = err
+      this.user = undefined
+      this.emit(AuthEvents.SignUpFailure, error)
+      throw err
+    }
   }
 
   private listenAuthEvent(): void {
-    // https://docs.amplify.aws/lib/auth/emailpassword/q/platform/js/#auto-sign-in-after-sign-up
-    Hub.listen('auth', ({ payload }) => {
-      const { event, data, message } = payload
-      if (event === 'autoSignIn') {
-        // this.user = payload.data
-        // assign user
-      } else if (event === 'autoSignIn_failure') {
-        // this.user = undefined
+    onAuthStateChanged(this.auth, (user) => {
+      if (user) {
+        this.user = user
+        this.emit(AuthEvents.SignIn, this.user)
+      } else {
+        this.user = undefined
+        this.emit(AuthEvents.SignOut, undefined)
       }
-
-      this.emit(event as constants.AuthEvents, data, message)
     })
   }
 
-  async confirmSignUp(email: string, code: string): Promise<void> {
-    await this.auth.confirmSignUp(email, code)
+  async confirmEmail(code: string): Promise<void> {
+    await applyActionCode(this.auth, code)
   }
 
-  async resendConfirmationCode(email: string): Promise<void> {
-    await this.auth.resendSignUp(email)
+  async verifyEmail(): Promise<void> {
+    if (this.user) {
+      await sendEmailVerification(this.user)
+    }
   }
 
   async signIn(email: string, password: string): Promise<void> {
-    await this.auth.signIn({ username: email, password })
-    // this.user = user
-    // await this.getSeed()
+    try {
+      const userCredential = await signInWithEmailAndPassword(this.auth, email, password)
+      this.user = userCredential.user
+    } catch (err: any) {
+      const error: AuthError = err
+      this.emit(AuthEvents.SignInFailure, error)
+      throw err
+    }
   }
 
   async signOut(global: boolean = false): Promise<void> {
-    await this.auth.signOut({ global })
-    // this.user = undefined
+    try {
+      await fbFignOut(this.auth)
+    } catch (err) {
+      this.emit(AuthEvents.SignOutFailure, err)
+    }
+    this.user = undefined
     this.seed = undefined
   }
 
-  private async createSeed(): Promise<string | undefined> {
-    const apiName = constants.API_AUTH_ENDPOINT_NAME
-    const path = '/auth/general/new'
-    try {
-      const response = await this.api.get(apiName, path, {})
-      this.seed = response.phrase
-      return this.seed
-    } catch (err: any) {
-      // if (axios.isAxiosError(err)) {
-      if (err?.isAxiosError === true) {
-        // throw new Error(err.response?.data?.message)
-        console.error(err.response?.data?.message)
-        return undefined
-      } else {
-        // throw err
-        console.error(err)
-        return undefined
+  private async api(endpoint: string): Promise<any> {
+    if (!this.user) throw new Error('User Not Found')
+    const token = await this.user.getIdToken()
+    const response = await fetch(API_AUTH_ENDPOINT + endpoint, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
+    })
+    const data = await response.json()
+    if (!response.ok) {
+      throw new ResponseError(response.status, data?.message)
     }
+    return data
+  }
+
+  private async createSeed(): Promise<string | undefined> {
+    const data = await this.api('/auth/general/new')
+    this.seed = data?.phrase
+    return this.seed
   }
 
   private async getSeed(): Promise<string | undefined> {
-    const apiName = constants.API_AUTH_ENDPOINT_NAME
-    const path = '/auth/general/get'
+    if (this.seed) return this.seed
     try {
-      const response = await this.api.get(apiName, path, {})
-      this.seed = response.phrase
-      return this.seed
-    } catch (err: any) {
-      // if (axios.isAxiosError(err)) {
-      if (err?.isAxiosError === true) {
-        if (err.response?.status === 404) {
+      const data = await this.api('/auth/general/get')
+      this.seed = data?.phrase
+    } catch (error) {
+      if (error instanceof ResponseError) {
+        if (error.status === 404) {
           // seed not exists
           return await this.createSeed()
-        } else {
-          // throw new Error(err.response?.data?.message)
-          console.error(err.response?.data?.message)
-          return undefined
         }
-      } else {
-        // throw err
-        console.error(err)
-        return undefined
       }
     }
+    return this.seed
   }
 
   async showSeed(): Promise<string | undefined> {
@@ -189,25 +129,12 @@ export class AuthClass extends EventEmitter {
     return await this.getSeed()
   }
 
-  async getCredentals(): Promise<ICredentials> {
-    return await this.auth.currentCredentials()
-  }
-
-  async currentSession(): Promise<CognitoUserSession> {
-    return await this.auth.currentSession()
-  }
-
   async isLoggedIn(): Promise<boolean> {
-    try {
-      const res = await this.auth.currentAuthenticatedUser()
-      return !!res
-    } catch (error) {
-      return false
-    }
+    return !!this.user
   }
 
   async loginGoogle(): Promise<void> {
-    await this.auth.federatedSignIn({ provider: CognitoHostedUIIdentityProvider.Google })
+    //
   }
 }
 
