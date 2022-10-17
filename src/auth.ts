@@ -51,6 +51,7 @@ export class AuthClass extends EventEmitter {
         this.emit(AuthEvents.SignIn, this.user)
       } else {
         this.user = undefined
+        this.seed = undefined
         this.emit(AuthEvents.SignOut, undefined)
       }
     })
@@ -77,7 +78,7 @@ export class AuthClass extends EventEmitter {
     }
   }
 
-  async signOut(global: boolean = false): Promise<void> {
+  async signOut(): Promise<void> {
     try {
       await fbFignOut(this.auth)
     } catch (err) {
